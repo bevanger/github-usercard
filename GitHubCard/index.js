@@ -1,8 +1,26 @@
+import axios from 'axios';
+
 /*
   STEP 1: using axios, send a GET request to the following URL
     (replacing the placeholder with your Github name):
     https://api.github.com/users/<your name>
 */
+
+
+axios.get(`https://api.github.com/users/bevanger`)
+  .then(function(response) {
+    const cardElement = document.querySelector('.cards'); // Selecting the div element in HTML, that has a class of cards
+    const newCard = createCard(response.data); //Create a new variable 'newCard' Assign it to the return value of running createCard(with our data response from our api call)
+    // remember that in createCard function we're returning the ENTIRE div we built out.   so newCard is actually = to <div class="cardDiv">
+    cardElement.appendChild(newCard);// I want to append a child to the cardElement (div with class of cards) - and I want that child to be: the createCard function using the response.data from github
+
+
+    //DECONSTRUCTING RESPONSE -> createCard({avatar_url: response.data.avatar_url, location: response.data.location, html_url: response.data.html_url, followers: response.data.followers, following: response.data.following, bio: response.data.bio });
+    // REMEMBER ALSO NEED TO DECONSTRUCT PARAMETERS IN FUNCTION DELCARATION TOO! EX: function createCard({html_url, location, avatar_url... })
+    //console.log(response.data);
+  })
+  .catch(err => console.log(err.message))
+  .finally(() => console.log('done'))
 
 /*
   STEP 2: Inspect and study the data coming back, this is YOUR
@@ -28,7 +46,16 @@
     user, and adding that card to the DOM.
 */
 
-const followersArray = [];
+const followersArray = ['JoeyMBrown', 'tetondan', 'dustinmyers', 'justsml', 'luishrd'];
+
+followersArray.forEach(function(user) {
+  axios.get(`https://api.github.com/users/${user}`)
+  .then(function(response) {
+    const cardElement = document.querySelector('.cards'); 
+    const newCard = createCard(response.data); 
+    cardElement.appendChild(newCard);
+  })
+});
 
 /*
   STEP 3: Create a function that accepts a single object as its only argument.
@@ -49,6 +76,47 @@ const followersArray = [];
       </div>
     </div>
 */
+function createCard(data){
+const cardDiv = document.createElement('div');
+const userImg = document.createElement('img');
+const infoDiv = document.createElement('div');
+const h3 = document.createElement('h3');
+const pUsername = document.createElement('p');
+const pLocation = document.createElement('p');
+const pProfile = document.createElement('p');
+const aAddress = document.createElement('a');
+const pFollowers = document.createElement('p');
+const pFollowing = document.createElement('p');
+const pBio = document.createElement('p');
+
+cardDiv.appendChild(userImg);
+cardDiv.appendChild(infoDiv);
+infoDiv.appendChild(h3);
+infoDiv.appendChild(pUsername);
+infoDiv.appendChild(pLocation);
+infoDiv.appendChild(pProfile);
+infoDiv.appendChild(pFollowers);
+infoDiv.appendChild(pFollowing);
+infoDiv.appendChild(pBio);
+
+cardDiv.classList.add('card');
+userImg.setAttribute('src', data.avatar_url);
+infoDiv.classList.add('card-info');
+h3.classList.add('name');
+pUsername.classList.add('username');
+
+pLocation.textContent = `Location: ${data.location}`;
+pProfile.textContent = `Profile: `;
+aAddress.setAttribute('href', data.html_url);
+aAddress.textContent = data.html_url;
+pFollowers.textContent = `Followers: ${data.followers}`;
+pFollowing.textContent = `Following: ${data.following}`;
+pBio.textContent = `Bio: ${data.bio}`;
+
+pProfile.appendChild(aAddress);
+
+return cardDiv;
+}
 
 /*
   List of LS Instructors Github username's:
